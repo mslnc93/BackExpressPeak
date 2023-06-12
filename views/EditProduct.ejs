@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%- include('partials/bootstrapCDN.ejs') %>
+    <title>Document</title>
+</head>
+
+<body>
+    <%- include('partials/navbar.ejs')%>
+    <%= data %>
+
+    <form action="/product/edit/<%= data.id %>?_method=PUT" method="post">
+        <input type="hidden" name="_method" value="PUT">
+
+        <label for="">Nom</label>
+        <input type="text" name="nom">
+
+        <label for="">Catégorie</label>
+        <input type="text" name="categorie">
+
+        <label for="">Prix</label>
+        <input type="number" name="prix">
+
+        <label for="">Descripton</label>
+        <textarea name="description" id="" cols="30" rows="10"></textarea>
+
+        <label for="">Stock</label>
+        <input type="number" name="stock">
+
+        <input type="submit" value="Confirmer">
+    </form>
+
+    <form action="/product/delete/<%= data.id %>?_method=DELETE" method="post">
+        <input type="hidden" name="_method" value="DELETE">
+        <input type="submit" value="Supprimer">
+    </form>
+
+</body>
+
+</html>
