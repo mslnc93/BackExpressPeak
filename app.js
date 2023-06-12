@@ -21,6 +21,8 @@ const User = require('./models/User');
 
 const Product = require('./models/Product');
 
+const Contact = require('./models/Contact');
+
 const url = process.env.DATABASE_URL
 
 const cors = require('cors');
@@ -49,7 +51,6 @@ const bcrypt = require('bcrypt');
 //SIGNIN
 
 app.get('/inscription', function (req, res) {
-    // res.render('Signin')
     res.json(data);
 });
 
@@ -65,7 +66,7 @@ app.post('/api/inscription', function (req, res) {
     Data.save()
         .then((data) => {
             console.log('User saved !');
-            res.redirect('/accueil')
+            res.redirect('http://localhost:3000/accueil')
         })
         .catch(err => console.log(err));
 });
@@ -78,9 +79,9 @@ app.get('/connexion', function (req, res) {
     res.render('Login');
 });
 
-app.post('/api/login', function (req, res) {
+app.post('/api/connexion', function (req, res) {
     User.findOne({
-        id: req.body.id
+        pseudo: req.body.pseudo
     }).then((user) => {
         if (!user) {
             res.send('Aucun utilisateur trouvé')
@@ -92,7 +93,7 @@ app.post('/api/login', function (req, res) {
             res.send("Mot de passe incorrect")
         }
 
-        res.redirect('/produits')
+        res.redirect('http://localhost:3000/accueil')
 
     }).catch((error) => { console.log(error) });
 })
@@ -172,10 +173,28 @@ app.delete('/product/delete/:id', function (req, res) {
 });
 
 
+//Contactez-nous
+
+app.get('/contact', function (req, res) {
+    res.render('Contact');
+});
 
 
-
-
+app.post('/api/contact', function (req, res) {
+    const Data = new Contact({
+        pseudo: req.body.pseudo,
+        email: req.body.email,
+        message: req.body.message,
+        
+        
+    })
+    Data.save()
+        .then((data) => {
+            console.log('User saved !');
+            res.redirect('http://localhost:3000/accueil')
+        })
+        .catch(err => console.log(err));
+});
 
 
 
