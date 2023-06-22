@@ -23,7 +23,9 @@ const Product = require('./models/Product');
 
 const Contact = require('./models/Contact');
 
-const url = process.env.DATABASE_URL
+const Post = require('./models/Post');
+
+const url = process.env.DATABASE_URL;
 
 const cors = require('cors');
 app.use(cors({
@@ -176,7 +178,7 @@ app.delete('/product/delete/:id', function (req, res) {
 //Contactez-nous
 
 app.get('/contact', function (req, res) {
-    res.render('Contact');
+    res.json('Contact');
 });
 
 
@@ -191,10 +193,23 @@ app.post('/api/contact', function (req, res) {
     Data.save()
         .then((data) => {
             console.log('User saved !');
-            res.redirect('http://localhost:3000/accueil')
+            res.redirect('http://localhost:3000/')
         })
         .catch(err => console.log(err));
 });
+
+
+//Page de poste et commentaires 
+
+app.get('/posts/:postId/comments', function (req, res) {
+    res.json(data);
+});
+
+
+
+
+
+
 
 
 
