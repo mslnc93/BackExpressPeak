@@ -199,11 +199,16 @@ app.post('/api/contact', function (req, res) {
 });
 
 
-//Page de poste et commentaires 
+//Poste et commentaires 
 
-app.get('/posts/:postId/comments', function (req, res) {
-    res.json(data);
+app.get('/posts', function (req, res) {
+    Post.find().then((data) => {
+        res.json(data);
+    })
 });
+
+
+
 
 
 
