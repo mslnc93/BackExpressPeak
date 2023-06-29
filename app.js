@@ -40,6 +40,20 @@ mongoose.connect(url, {
     .catch(err => console.log(err))
 
 
+// Multer pour gérer les fichiers
+const multer = require('multer');
+app.use(express.static('uploads'));
+
+const storage = multer.diskStorage({
+
+    destination: (req, file, cb)=> {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb)=> {
+        cb(null, file.originalname);
+    }
+});
+const upload = multer({storage});
 
 //Method Override
 
@@ -48,6 +62,7 @@ const { cpSync } = require('fs');
 app.use(methodOverride('_method'));
 
 const bcrypt = require('bcrypt');
+
 
 
 //SIGNIN
@@ -117,15 +132,12 @@ app.get('/produits', function (req, res) {
 
 //NOUVEAU PRODUIT
 
-app.get('/nouveauproduit', (req, res) => {
-    res.render('NewProduct');
-});
-
 app.post('/api/submit-product', function (req, res) {
     const Data = new Product({
         nom: req.body.nom,
         categorie: req.body.categorie,
         prix: req.body.prix,
+        imageNom: req.body.imageNom,
         description: req.body.description,
         stock: req.body.stock,
     })
@@ -187,8 +199,8 @@ app.post('/api/contact', function (req, res) {
         pseudo: req.body.pseudo,
         email: req.body.email,
         message: req.body.message,
-        
-        
+
+
     })
     Data.save()
         .then((data) => {
@@ -199,15 +211,25 @@ app.post('/api/contact', function (req, res) {
 });
 
 
-//Poste et commentaires 
+// Post et commentaires 
 
-app.get('/posts', function (req, res) {
-    Post.find().then((data) => {
-        res.json(data);
-    })
+app.post('/submit-post', upload.single('image'), function (req, res) {
+    const Data = new Post({
+        titre: req.body.titre,
+        resume: req.body.resume,
+        contenu: req.body.contenu,
+        imageNom: req.body.imageNom,
+    });
+    Data.save().then(() =>
+        res.redirect('http://localhost:3000/forumconseils'))
+        .catch(err => console.log(err));
 });
 
-
+app.get('/forumconseils', function (req, res) {
+    Post.find().then((data)=>{
+        res.json(data);
+    })
+})
 
 
 
