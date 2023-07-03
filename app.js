@@ -46,14 +46,24 @@ app.use(express.static('uploads'));
 
 const storage = multer.diskStorage({
 
-    destination: (req, file, cb)=> {
+    destination: (req, file, cb) => {
         cb(null, 'uploads/');
     },
-    filename: (req, file, cb)=> {
+    filename: (req, file, cb) => {
         cb(null, file.originalname);
     }
 });
-const upload = multer({storage});
+const upload = multer({ storage });
+
+app.post('/uploads', upload.single('image'), (req, res) => {
+    if (!req.file) {
+        res.status(400).send('No file ulpoaded');
+    }
+    else {
+        res.send('File uploaded successfull')
+    }
+})
+
 
 //Method Override
 
@@ -213,22 +223,24 @@ app.post('/api/contact', function (req, res) {
 
 // Post et commentaires 
 
-app.post('/submit-post', upload.single('image'), function (req, res) {
+app.post('/submit-post', upload.single('file'), function (req, res) {
     const Data = new Post({
         titre: req.body.titre,
         resume: req.body.resume,
         contenu: req.body.contenu,
-        imageNom: req.body.imageNom,
+        imagenom: req.body.imagenom,
     });
-    Data.save().then(() =>
-        res.redirect('http://localhost:3000/forumconseils'))
+    Data.save()
+        .then(() =>
+            res.json('ok !'))
         .catch(err => console.log(err));
 });
 
-app.get('/forumconseils', function (req, res) {
-    Post.find().then((data)=>{
+app.get('/posts', function (req, res) {
+    Post.find().then((data) => {
         res.json(data);
     })
+        .catch(err => console.log(err));
 })
 
 

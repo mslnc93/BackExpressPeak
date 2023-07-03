@@ -11,7 +11,7 @@ const postSchema = mongoose.Schema({
     titre : {type : 'string', required: true},
     resume : {type : 'string', required: true},
     contenu : {type : 'string', required: true},
-    imageNom : {type : 'string', required: true},
+    imagenom : {type : 'string', required: true},
     commentaires: [{ type: commentaires }],
 })
 
