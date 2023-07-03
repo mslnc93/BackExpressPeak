@@ -244,7 +244,31 @@ app.get('/posts', function (req, res) {
 })
 
 
+// Edition et suppression post
 
+app.put('/post/edit/:id', function(req, res) {
+    console.log(req.params.id);
+    const Data = {
+        titre: req.body.titre,
+        resume : req.body.resume,
+        contenu : req.body.contenu,
+        imagenom: req.body.imagenom,
+    }
+    Film.updateOne({_id: req.params.id}, {$set: Data})
+    .then(data =>{
+        console.log("Data updated");
+        res.redirect('http://localhost:3000/forumconseils/')
+    })
+    .catch(err =>console.log(err));
+});
+
+app.delete('/post/delete/:id', function(req, res) {
+    Post.findOneAndDelete({_id: req.params.id})
+    .then(()=>{
+        res.redirect('http://localhost:3000/forumconseils/');
+    })
+    .catch(err=>console.log(err))
+});
 
 
 
