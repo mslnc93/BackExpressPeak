@@ -240,13 +240,23 @@ app.get('/posts', function (req, res) {
     Post.find().then((data) => {
         res.json(data);
     })
-        .catch(err => console.log(err));
+    .catch(err => console.log(err));
 })
 
+app.get('/post/:id', function (req, res) {
+    console.log(req.params.id);
+    Post.findone({
+        _id: req.params.id
+    })
+    .then(data => {
+        res.render('Edit', {data: data});
+    })
+    .catch(err => console.log(err))
+});
 
 // Edition et suppression post
 
-app.put('/post/edit/:id', function(req, res) {
+app.put('/post/edit/:id', upload.single('file'), function(req, res) {
     console.log(req.params.id);
     const Data = {
         titre: req.body.titre,
@@ -254,10 +264,11 @@ app.put('/post/edit/:id', function(req, res) {
         contenu : req.body.contenu,
         imagenom: req.body.imagenom,
     }
-    Film.updateOne({_id: req.params.id}, {$set: Data})
+    Post.updateOne({_id: req.params.id}, {$set: Data})
     .then(data =>{
         console.log("Data updated");
-        res.redirect('http://localhost:3000/forumconseils/')
+        // res.redirect('http://localhost:3000/forumconseils/')
+        res.json(data);
     })
     .catch(err =>console.log(err));
 });
@@ -269,6 +280,7 @@ app.delete('/post/delete/:id', function(req, res) {
     })
     .catch(err=>console.log(err))
 });
+
 
 
 
