@@ -140,24 +140,6 @@ app.get('/produits', function (req, res) {
 
 
 
-//NOUVEAU PRODUIT
-
-app.post('/api/submit-product', function (req, res) {
-    const Data = new Product({
-        nom: req.body.nom,
-        categorie: req.body.categorie,
-        prix: req.body.prix,
-        imageNom: req.body.imageNom,
-        description: req.body.description,
-        stock: req.body.stock,
-    })
-    Data.save().then(() => {
-        console.log("Data enregistrée avec succès.")
-        res.redirect('/produits')
-    }).catch(err => {
-        console.log(err)
-    })
-})
 
 
 //EDITER ET SUPPRIMER
@@ -221,6 +203,32 @@ app.post('/api/contact', function (req, res) {
 });
 
 
+//NOUVEAU PRODUIT
+
+app.post('/submit-product', upload.single('file'), function (req, res) {
+    const Data = new Product({
+        nom: req.body.nom,
+        categorie: req.body.categorie,
+        prix: req.body.prix,
+        imagenom: req.body.imagenom,
+        description: req.body.description,
+        stock: req.body.stock,
+    })
+    Data.save().then(() => {
+        res.json('ok !');
+    }).catch(err => {
+        console.log(err)
+    })
+})
+
+app.get('/products', function (req, res) {
+    Product.find().then((data) => {
+        res.json(data);
+    })
+        .catch(err => console.log(err));
+})
+
+
 // Post et commentaires 
 
 app.post('/submit-post', upload.single('file'), function (req, res) {
@@ -240,7 +248,7 @@ app.get('/posts', function (req, res) {
     Post.find().then((data) => {
         res.json(data);
     })
-    .catch(err => console.log(err));
+        .catch(err => console.log(err));
 })
 
 app.get('/post/:id', function (req, res) {
@@ -248,37 +256,37 @@ app.get('/post/:id', function (req, res) {
     Post.findone({
         _id: req.params.id
     })
-    .then(data => {
-        res.render('Edit', {data: data});
-    })
-    .catch(err => console.log(err))
+        .then(data => {
+            res.render('Edit', { data: data });
+        })
+        .catch(err => console.log(err))
 });
 
 // Edition et suppression post
 
-app.put('/post/edit/:id', upload.single('file'), function(req, res) {
+app.put('/post/edit/:id', upload.single('file'), function (req, res) {
     console.log(req.params.id);
     const Data = {
         titre: req.body.titre,
-        resume : req.body.resume,
-        contenu : req.body.contenu,
+        resume: req.body.resume,
+        contenu: req.body.contenu,
         imagenom: req.body.imagenom,
     }
-    Post.updateOne({_id: req.params.id}, {$set: Data})
-    .then(data =>{
-        console.log("Data updated");
-        // res.redirect('http://localhost:3000/forumconseils/')
-        res.json(data);
-    })
-    .catch(err =>console.log(err));
+    Post.updateOne({ _id: req.params.id }, { $set: Data })
+        .then(data => {
+            console.log("Data updated");
+            // res.redirect('http://localhost:3000/forumconseils/')
+            res.json(data);
+        })
+        .catch(err => console.log(err));
 });
 
-app.delete('/post/delete/:id', function(req, res) {
-    Post.findOneAndDelete({_id: req.params.id})
-    .then(()=>{
-        res.redirect('http://localhost:3000/forumconseils/');
-    })
-    .catch(err=>console.log(err))
+app.delete('/post/delete/:id', function (req, res) {
+    Post.findOneAndDelete({ _id: req.params.id })
+        .then(() => {
+            res.redirect('http://localhost:3000/forumconseils/');
+        })
+        .catch(err => console.log(err))
 });
 
 
