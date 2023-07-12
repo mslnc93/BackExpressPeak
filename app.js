@@ -142,41 +142,6 @@ app.get('/produits', function (req, res) {
 
 
 
-//EDITER ET SUPPRIMER
-
-app.get('/product/:id', function (req, res) {
-    Product.findOne({ _id: req.params.id })
-        .then((data) => {
-            console.log(data);
-            res.render('EditProduct', { data: data });
-        })
-        .catch(err => console.log(err));
-});
-
-
-app.put('/product/edit/:id', function (req, res) {
-    const Data = ({
-        nom: req.body.nom,
-        categorie: req.body.categorie,
-        prix: req.body.prix,
-        description: req.body.description,
-        stock: req.body.stock
-    })
-
-    Product.updateOne({ _id: req.params.id }, { $set: Data })
-        .then(() => {
-            res.redirect('/produits')
-        })
-        .catch(err => console.log(err));
-});
-
-app.delete('/product/delete/:id', function (req, res) {
-    Product.findOneAndDelete({ _id: req.params.id })
-        .then(() => {
-            res.redirect('/produits')
-        })
-        .catch(err => console.log(err));
-});
 
 
 //Contactez-nous
@@ -191,15 +156,15 @@ app.post('/api/contact', function (req, res) {
         pseudo: req.body.pseudo,
         email: req.body.email,
         message: req.body.message,
-
-
+        
+        
     })
     Data.save()
-        .then((data) => {
-            console.log('User saved !');
-            res.redirect('http://localhost:3000/')
-        })
-        .catch(err => console.log(err));
+    .then((data) => {
+        console.log('User saved !');
+        res.redirect('http://localhost:3000/')
+    })
+    .catch(err => console.log(err));
 });
 
 
@@ -225,7 +190,7 @@ app.get('/products', function (req, res) {
     Product.find().then((data) => {
         res.json(data);
     })
-        .catch(err => console.log(err));
+    .catch(err => console.log(err));
 })
 
 
@@ -241,55 +206,92 @@ app.post('/submit-post', upload.single('file'), function (req, res) {
     Data.save()
         .then(() =>
             res.json('ok !'))
-        .catch(err => console.log(err));
-});
-
-app.get('/posts', function (req, res) {
+            .catch(err => console.log(err));
+        });
+        
+        app.get('/posts', function (req, res) {
     Post.find().then((data) => {
         res.json(data);
     })
         .catch(err => console.log(err));
-})
-
-app.get('/post/:id', function (req, res) {
-    console.log(req.params.id);
-    Post.findone({
-        _id: req.params.id
     })
+    
+    
+    // Edition et suppression post
+    
+    app.get('/post/:id', function (req, res) {
+        console.log(req.params.id);
+        Post.findOne({
+            _id: req.params.id
+        })
         .then(data => {
-            res.render('Edit', { data: data });
+            res.json(data);
         })
         .catch(err => console.log(err))
-});
-
-// Edition et suppression post
-
-app.put('/post/edit/:id', upload.single('file'), function (req, res) {
-    console.log(req.params.id);
-    const Data = {
-        titre: req.body.titre,
-        resume: req.body.resume,
-        contenu: req.body.contenu,
-        imagenom: req.body.imagenom,
-    }
-    Post.updateOne({ _id: req.params.id }, { $set: Data })
+    });
+    
+    app.put('/post/edit/:id', upload.single('file'), function (req, res) {
+        console.log(req.params.id);
+        const Data = {
+            titre: req.body.titre,
+            resume: req.body.resume,
+            contenu: req.body.contenu,
+            imagenom: req.body.imagenom,
+        }
+        Post.updateOne({ _id: req.params.id }, { $set: Data })
         .then(data => {
             console.log("Data updated");
             // res.redirect('http://localhost:3000/forumconseils/')
             res.json(data);
         })
         .catch(err => console.log(err));
-});
-
-app.delete('/post/delete/:id', function (req, res) {
-    Post.findOneAndDelete({ _id: req.params.id })
+    });
+    
+    app.delete('/post/delete/:id', function (req, res) {
+        Post.findOneAndDelete({ _id: req.params.id })
         .then(() => {
             res.redirect('http://localhost:3000/forumconseils/');
         })
         .catch(err => console.log(err))
-});
+    });
+    
 
-
+    //EDITER ET SUPPRIMER PRODUIT
+    
+    app.get('/product/:id', function (req, res) {
+        Product.findOne({ _id: req.params.id })
+            .then((data) => {
+                console.log(data);
+                res.render('EditProduct', { data: data });
+            })
+            .catch(err => console.log(err));
+    });
+    
+    
+    app.put('/product/edit/:id', function (req, res) {
+        const Data = ({
+            nom: req.body.nom,
+            categorie: req.body.categorie,
+            prix: req.body.prix,
+            description: req.body.description,
+            stock: req.body.stock
+        })
+    
+        Product.updateOne({ _id: req.params.id }, { $set: Data })
+            .then(() => {
+                res.redirect('/produits')
+            })
+            .catch(err => console.log(err));
+    });
+    
+    app.delete('/product/delete/:id', function (req, res) {
+        Product.findOneAndDelete({ _id: req.params.id })
+            .then(() => {
+                res.redirect('/produits')
+            })
+            .catch(err => console.log(err));
+    });
+    
 
 
 
