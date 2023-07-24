@@ -32,6 +32,7 @@ app.use(cors({
     origin: 'http://localhost:3000',
 }))
 
+//Mongoose
 
 mongoose.connect(url, {
     useNewUrlParser: true,
@@ -65,17 +66,21 @@ app.post('/uploads', upload.single('image'), (req, res) => {
 })
 
 
-//Method Override
+//Method Override ( delete and edit )
 
 const methodOverride = require('method-override');
 const { cpSync } = require('fs');
 app.use(methodOverride('_method'));
 
+//Encodage mdp
+
 const bcrypt = require('bcrypt');
 
+//Token
 
+const { createTokens, validateToken } = require('./JWT');
 
-//SIGNIN
+//SIGNUP
 
 app.get('/inscription', function (req, res) {
     res.json(data);
@@ -103,7 +108,7 @@ app.post('/api/inscription', function (req, res) {
 //LOGIN
 
 app.get('/connexion', function (req, res) {
-    res.render('Login');
+    res.json('Login');
 });
 
 app.post('/api/connexion', function (req, res) {
@@ -116,14 +121,28 @@ app.post('/api/connexion', function (req, res) {
 
 
         if (!bcrypt.compareSync(req.body.mdp, user.mdp)) {
-
             res.send("Mot de passe incorrect")
         }
+        const accessToken = createTokens(user);
 
-        res.redirect('http://localhost:3000/accueil')
+        res.cookie("accessToken", accessToken, {
+            maxAge: 60 * 60 * 24 * 30,
+            httpOnly: true
+        })
+
+        res.redirect('http://localhost:3000/')
+        console.log("user found");
 
     }).catch((error) => { console.log(error) });
 })
+
+app.get('/api/deconnexion', function (req, res) {
+    res.clearCookie('accessToken',{
+        httpOnly: true,
+    });
+});
+
+
 
 
 //PRODUIT
@@ -140,10 +159,6 @@ app.get('/produits', function (req, res) {
 
 
 
-
-
-
-
 //Contactez-nous
 
 app.get('/contact', function (req, res) {
@@ -156,15 +171,15 @@ app.post('/api/contact', function (req, res) {
         pseudo: req.body.pseudo,
         email: req.body.email,
         message: req.body.message,
-        
-        
+
+
     })
     Data.save()
-    .then((data) => {
-        console.log('User saved !');
-        res.redirect('http://localhost:3000/')
-    })
-    .catch(err => console.log(err));
+        .then((data) => {
+            console.log('User saved !');
+            res.redirect('http://localhost:3000/')
+        })
+        .catch(err => console.log(err));
 });
 
 
@@ -190,7 +205,7 @@ app.get('/products', function (req, res) {
     Product.find().then((data) => {
         res.json(data);
     })
-    .catch(err => console.log(err));
+        .catch(err => console.log(err));
 })
 
 
@@ -206,92 +221,92 @@ app.post('/submit-post', upload.single('file'), function (req, res) {
     Data.save()
         .then(() =>
             res.json('ok !'))
-            .catch(err => console.log(err));
-        });
-        
-        app.get('/posts', function (req, res) {
+        .catch(err => console.log(err));
+});
+
+app.get('/posts', function (req, res) {
     Post.find().then((data) => {
         res.json(data);
     })
         .catch(err => console.log(err));
+})
+
+
+// Edition et suppression post
+
+app.get('/post/:id', function (req, res) {
+    console.log(req.params.id);
+    Post.findOne({
+        _id: req.params.id
     })
-    
-    
-    // Edition et suppression post
-    
-    app.get('/post/:id', function (req, res) {
-        console.log(req.params.id);
-        Post.findOne({
-            _id: req.params.id
-        })
         .then(data => {
             res.json(data);
         })
         .catch(err => console.log(err))
-    });
-    
-    app.put('/post/edit/:id', upload.single('file'), function (req, res) {
-        console.log(req.params.id);
-        const Data = {
-            titre: req.body.titre,
-            resume: req.body.resume,
-            contenu: req.body.contenu,
-            imagenom: req.body.imagenom,
-        }
-        Post.updateOne({ _id: req.params.id }, { $set: Data })
+});
+
+app.put('/post/edit/:id', upload.single('file'), function (req, res) {
+    console.log(req.params.id);
+    const Data = {
+        titre: req.body.titre,
+        resume: req.body.resume,
+        contenu: req.body.contenu,
+        imagenom: req.body.imagenom,
+    }
+    Post.updateOne({ _id: req.params.id }, { $set: Data })
         .then(data => {
             console.log("Data updated");
             // res.redirect('http://localhost:3000/forumconseils/')
             res.json(data);
         })
         .catch(err => console.log(err));
-    });
-    
-    app.delete('/post/delete/:id', function (req, res) {
-        Post.findOneAndDelete({ _id: req.params.id })
+});
+
+app.delete('/post/delete/:id', function (req, res) {
+    Post.findOneAndDelete({ _id: req.params.id })
         .then(() => {
             res.redirect('http://localhost:3000/forumconseils/');
         })
         .catch(err => console.log(err))
-    });
-    
+});
 
-    //EDITER ET SUPPRIMER PRODUIT
-    
-    app.get('/product/:id', function (req, res) {
-        Product.findOne({ _id: req.params.id })
-            .then((data) => {
-                console.log(data);
-                res.render('EditProduct', { data: data });
-            })
-            .catch(err => console.log(err));
-    });
-    
-    
-    app.put('/product/edit/:id', function (req, res) {
-        const Data = ({
-            nom: req.body.nom,
-            categorie: req.body.categorie,
-            prix: req.body.prix,
-            description: req.body.description,
-            stock: req.body.stock
+
+//EDITER ET SUPPRIMER PRODUIT
+
+app.get('/product/:id', function (req, res) {
+    Product.findOne({ _id: req.params.id })
+        .then((data) => {
+            console.log(data);
+            res.render('EditProduct', { data: data });
         })
-    
-        Product.updateOne({ _id: req.params.id }, { $set: Data })
-            .then(() => {
-                res.redirect('/produits')
-            })
-            .catch(err => console.log(err));
-    });
-    
-    app.delete('/product/delete/:id', function (req, res) {
-        Product.findOneAndDelete({ _id: req.params.id })
-            .then(() => {
-                res.redirect('/produits')
-            })
-            .catch(err => console.log(err));
-    });
-    
+        .catch(err => console.log(err));
+});
+
+
+app.put('/product/edit/:id', function (req, res) {
+    const Data = ({
+        nom: req.body.nom,
+        categorie: req.body.categorie,
+        prix: req.body.prix,
+        description: req.body.description,
+        stock: req.body.stock
+    })
+
+    Product.updateOne({ _id: req.params.id }, { $set: Data })
+        .then(() => {
+            res.redirect('/produits')
+        })
+        .catch(err => console.log(err));
+});
+
+app.delete('/product/delete/:id', function (req, res) {
+    Product.findOneAndDelete({ _id: req.params.id })
+        .then(() => {
+            res.redirect('/produits')
+        })
+        .catch(err => console.log(err));
+});
+
 
 
 
