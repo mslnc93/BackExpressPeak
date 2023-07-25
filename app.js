@@ -80,7 +80,7 @@ const bcrypt = require('bcrypt');
 
 const { createTokens, validateToken } = require('./JWT');
 
-//SIGNUP
+//Incription
 
 app.get('/inscription', function (req, res) {
     res.json(data);
@@ -98,7 +98,7 @@ app.post('/api/inscription', function (req, res) {
     Data.save()
         .then((data) => {
             console.log('User saved !');
-            res.redirect('http://localhost:3000/accueil')
+            res.redirect('http://localhost:3000/')
         })
         .catch(err => console.log(err));
 });
@@ -136,14 +136,13 @@ app.post('/api/connexion', function (req, res) {
     }).catch((error) => { console.log(error) });
 })
 
+//Déconnexion
+
 app.get('/api/deconnexion', function (req, res) {
-    res.clearCookie('accessToken',{
-        httpOnly: true,
-    });
+    res.clearCookie('accessToken');
+    console.log("Cookie d'authentification supprimé");
+    res.send("Déconnexion réussie"); 
 });
-
-
-
 
 //PRODUIT
 
