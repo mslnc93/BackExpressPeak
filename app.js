@@ -25,6 +25,8 @@ const Contact = require('./models/Contact');
 
 const Post = require('./models/Post');
 
+const Commentaire = require('./models/Commentaire');
+
 const url = process.env.DATABASE_URL;
 
 const cors = require('cors');
@@ -141,7 +143,7 @@ app.post('/api/connexion', function (req, res) {
 app.get('/api/deconnexion', function (req, res) {
     res.clearCookie('accessToken');
     console.log("Cookie d'authentification supprimé");
-    res.send("Déconnexion réussie"); 
+    res.send("Déconnexion réussie");
 });
 
 //PRODUIT
@@ -208,7 +210,7 @@ app.get('/products', function (req, res) {
 })
 
 
-// Post et commentaires 
+// Posts
 
 app.post('/submit-post', upload.single('file'), function (req, res) {
     const Data = new Post({
@@ -219,11 +221,40 @@ app.post('/submit-post', upload.single('file'), function (req, res) {
     });
     Data.save()
         .then(() =>
+            console.log('Data saved !'),
             res.json('ok !'))
         .catch(err => console.log(err));
 });
 
 app.get('/posts', function (req, res) {
+    Post.find().then((data) => {
+        res.json(data);
+    })
+        .catch(err => console.log(err));
+})
+
+//Commentaires
+
+app.post('/submit-comment/:postId', function (req, res) {
+    const postId = req.params.postId;
+    const comment =  req.body.commentaires
+    const nouveauCommentaire = new Commentaire({
+        userId: 1, // Remplace cette valeur par l'ID de l'utilisateur concerné par le commentaire
+        message: comment, // Le contenu du commentaire envoyé depuis le frontend
+        date: new Date(), // Utilise la date actuelle comme date du commentaire, tu peux ajuster cela selon tes besoins
+    });
+    nouveauCommentaire.save()
+    .then(commentaireEnregistre => {
+        console.log('Commentaire envoyé !');
+        res.json(commentaireEnregistre); // Facultatif : tu peux renvoyer le commentaire enregistré dans la réponse si nécessaire
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({ error: "Erreur lors de l'ajout du commentaire" });
+    });
+})
+
+app.get('/comments', function (req, res) {
     Post.find().then((data) => {
         res.json(data);
     })
